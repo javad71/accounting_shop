@@ -1,0 +1,16 @@
+{
+  "transactions": [],
+  "debtsCredits": [],
+  "costs": [
+    {
+      "type": "electricity",
+      "amount": 120000,
+      "date": "2024-10-17"
+    },
+    {
+      "type": "rent",
+      "amount": 120000,
+      "date": "2024-10-01"
+    }
+  ]
+}
