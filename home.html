@@ -477,221 +477,225 @@
 
     <script type="text/javascript">
         $(document).ready(function() {
-        // Initialize an object to store our data
-        let shopData = {
-            transactions: [],
-            debtsCredits: [],
-            costs: []
-        };
-
-        // Load data when the page loads
-        loadData();
-
-        // Handle transaction form submission
-        $('#transactionForm').submit(function(e) {
-            e.preventDefault();
-            let transaction = {
-                date: $('#transactionDate').val(),
-                productName: $('#productName').val(),
-                price: parseFloat($('#price').val()),
-                quantity: parseInt($('#quantity').val()),
-                type: $('#transactionType').val()
+            // Initialize an object to store our data
+            let shopData = {
+                transactions: [],
+                debtsCredits: [],
+                costs: []
             };
-            shopData.transactions.push(transaction);
-            this.reset();
-            showAlert('Transaction added successfully!', 'success');
-        });
 
-        // Handle debt/credit form submission
-        $('#debtCreditForm').submit(function(e) {
-            e.preventDefault();
-            let debtCredit = {
-                personName: $('#personName').val(),
-                amount: parseFloat($('#amount').val()),
-                paymentDate: $('#paymentDate').val(),
-                type: $('#debtCreditType').val()
-            };
-            shopData.debtsCredits.push(debtCredit);
-            this.reset();
-            showAlert('Debt/Credit entry added successfully!', 'success');
-        });
-
-        // Handle cost form submission
-        $('#costForm').submit(function(e) {
-            e.preventDefault();
-            let cost = {
-                type: $('#costType').val(),
-                amount: parseFloat($('#costAmount').val()),
-                date: $('#costDate').val()
-            };
-            shopData.costs.push(cost);
-            this.reset();
-            showAlert('Cost entry added successfully!', 'success');
-        });
-
-        // Generate report
-        $('#generateReport').click(function() {
-            let reportType = $('#reportType').val();
-            let report = generateReport(reportType);
-            $('#reportResults').html(report);
-        });
-
-        // Trigger save data function
-        $('.btn-save').click(function() {
-            saveData();
-        });
-
-        // Trigger load data function
-        $('.btn-load').click(function() {
+            // Load data when the page loads
             loadData();
-        });
 
-        // Modified Save data to JSON file function
-        function saveData() {
-            // First, load existing data
-            let fileInput = document.createElement('input');
-            fileInput.type = 'file';
-            fileInput.accept = '.json';
-            fileInput.onchange = function(e) {
-                let file = e.target.files[0];
-                let reader = new FileReader();
-                reader.onload = function(e) {
-                    try {
-                        let existingData = JSON.parse(e.target.result);
-                        // Merge existing data with current shopData
-                        let mergedData = {
-                            transactions: [...existingData.transactions, ...shopData.transactions],
-                            debtsCredits: [...existingData.debtsCredits, ...shopData.debtsCredits],
-                            costs: [...existingData.costs, ...shopData.costs]
-                        };
-                        
-                        // Save merged data
-                        let jsonData = JSON.stringify(mergedData, null, 2);
-                        let blob = new Blob([jsonData], {type: "application/json"});
-                        saveAs(blob, "shop_data.json");
-                        showAlert('Data saved successfully!', 'success');
-                        
-                        // Update shopData with merged data
-                        shopData = mergedData;
-                    } catch (error) {
-                        // If there's an error parsing the file (e.g., it's empty or invalid),
-                        // just save the current shopData
-                        let jsonData = JSON.stringify(shopData, null, 2);
-                        let blob = new Blob([jsonData], {type: "application/json"});
-                        saveAs(blob, "shop_data.json");
-                        showAlert('New data saved successfully!', 'success');
-                    }
+            // Handle transaction form submission
+            $('#transactionForm').submit(function(e) {
+                e.preventDefault();
+                let transaction = {
+                    date: $('#transactionDate').val(),
+                    productName: $('#productName').val(),
+                    price: parseFloat($('#price').val()),
+                    quantity: parseInt($('#quantity').val()),
+                    type: $('#transactionType').val()
                 };
-                reader.readAsText(file);
-            };
-            fileInput.click();
-        }
+                shopData.transactions.push(transaction);
+                this.reset();
+                showAlert('Transaction added successfully!', 'success');
+            });
 
-        // Load data from JSON file
-        function loadData() {
-            let fileInput = document.createElement('input');
-            fileInput.type = 'file';
-            fileInput.accept = '.json';
-            fileInput.onchange = function(e) {
-                let file = e.target.files[0];
-                let reader = new FileReader();
-                reader.onload = function(e) {
-                    try {
-                        shopData = JSON.parse(e.target.result);
-                        showAlert('Data loaded successfully!', 'success');
-                    } catch (error) {
-                        showAlert('Error loading data: ' + error.message, 'danger');
-                    }
+            // Handle debt/credit form submission
+            $('#debtCreditForm').submit(function(e) {
+                e.preventDefault();
+                let debtCredit = {
+                    personName: $('#personName').val(),
+                    amount: parseFloat($('#amount').val()),
+                    paymentDate: $('#paymentDate').val(),
+                    type: $('#debtCreditType').val()
                 };
-                reader.readAsText(file);
-            };
-            fileInput.click();
-        }
+                shopData.debtsCredits.push(debtCredit);
+                this.reset();
+                showAlert('Debt/Credit entry added successfully!', 'success');
+            });
 
-        // Show alert function
-        function showAlert(message, type) {
-            const alertDiv = $('<div>').addClass(`alert alert-${type} alert-dismissible fade show`)
-                .attr('role', 'alert')
-                .html(`
-                    ${message}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                `);
-            $('body').append(alertDiv);
-            setTimeout(() => {
-                alertDiv.alert('close');
-            }, 3000);
-        }
+            // Handle cost form submission
+            $('#costForm').submit(function(e) {
+                e.preventDefault();
+                let cost = {
+                    type: $('#costType').val(),
+                    amount: parseFloat($('#costAmount').val()),
+                    date: $('#costDate').val()
+                };
+                shopData.costs.push(cost);
+                this.reset();
+                showAlert('Cost entry added successfully!', 'success');
+            });
 
-        // Generate report function
-        function generateReport(type) {
-            let now = new Date();
-            let startDate = new Date();
-            if (type === 'weekly') {
-                startDate.setDate(now.getDate() - 7);
-            } else if (type === 'monthly') {
-                startDate.setMonth(now.getMonth() - 1);
+            // Generate report
+            $('#generateReport').click(function() {
+                let reportType = $('#reportType').val();
+                let report = generateReport(reportType);
+                $('#reportResults').html(report);
+            });
+
+            // Trigger save data function
+            $('.btn-save').click(function() {
+                saveData();
+            });
+
+            // Trigger load data function
+            $('.btn-load').click(function() {
+                loadData();
+            });
+
+             // Modified Save data to JSON file function
+            function saveData() {
+                // First, load existing data
+                let fileInput = document.createElement('input');
+                fileInput.type = 'file';
+                fileInput.accept = '.json';
+                fileInput.onchange = function(e) {
+                    let file = e.target.files[0];
+                    let reader = new FileReader();
+                    reader.onload = function(e) {
+                        try {
+                            let existingData = JSON.parse(e.target.result);
+                            // Merge existing data with current shopData
+                            let mergedData = {
+                                transactions: [...existingData.transactions, ...shopData.transactions],
+                                debtsCredits: [...existingData.debtsCredits, ...shopData.debtsCredits],
+                                costs: [...existingData.costs, ...shopData.costs]
+                            };
+                            
+                            // Save merged data
+                            let jsonData = JSON.stringify(mergedData, null, 2);
+                            let blob = new Blob([jsonData], {type: "application/json"});
+                            saveAs(blob, "shop_data.json");
+                            showAlert('Data saved successfully!', 'success');
+                            
+                            // Clear the shopData object after saving
+                            shopData = {
+                                transactions: [],
+                                debtsCredits: [],
+                                costs: []
+                            };
+                        } catch (error) {
+                            // If there's an error parsing the file (e.g., it's empty or invalid),
+                            // just save the current shopData
+                            let jsonData = JSON.stringify(shopData, null, 2);
+                            let blob = new Blob([jsonData], {type: "application/json"});
+                            saveAs(blob, "shop_data.json");
+                            showAlert('New data saved successfully!', 'success');
+                        }
+                    };
+                    reader.readAsText(file);
+                };
+                fileInput.click();
             }
 
-            let buySum = 0;
-            let sellSum = 0;
-            let debtSum = 0;
-            let creditSum = 0;
-            let costSum = 0;
+            // Load data from JSON file
+            function loadData() {
+                let fileInput = document.createElement('input');
+                fileInput.type = 'file';
+                fileInput.accept = '.json';
+                fileInput.onchange = function(e) {
+                    let file = e.target.files[0];
+                    let reader = new FileReader();
+                    reader.onload = function(e) {
+                        try {
+                            shopData = JSON.parse(e.target.result);
+                            showAlert('Data loaded successfully!', 'success');
+                        } catch (error) {
+                            showAlert('Error loading data: ' + error.message, 'danger');
+                        }
+                    };
+                    reader.readAsText(file);
+                };
+                fileInput.click();
+            }
 
-            shopData.transactions.forEach(t => {
-                if (new Date(t.date) >= startDate) {
-                    if (t.type === 'buy') {
-                        buySum += t.price * t.quantity;
-                    } else {
-                        sellSum += t.price * t.quantity;
+            // Show alert function
+            function showAlert(message, type) {
+                const alertDiv = $('<div>').addClass(`alert alert-${type} alert-dismissible fade show`)
+                    .attr('role', 'alert')
+                    .html(`
+                        ${message}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    `);
+                $('body').append(alertDiv);
+                setTimeout(() => {
+                    alertDiv.alert('close');
+                }, 3000);
+            }
+
+            // Generate report function
+            function generateReport(type) {
+                let now = new Date();
+                let startDate = new Date();
+                if (type === 'weekly') {
+                    startDate.setDate(now.getDate() - 7);
+                } else if (type === 'monthly') {
+                    startDate.setMonth(now.getMonth() - 1);
+                }
+
+                let buySum = 0;
+                let sellSum = 0;
+                let debtSum = 0;
+                let creditSum = 0;
+                let costSum = 0;
+
+                shopData.transactions.forEach(t => {
+                    if (new Date(t.date) >= startDate) {
+                        if (t.type === 'buy') {
+                            buySum += t.price * t.quantity;
+                        } else {
+                            sellSum += t.price * t.quantity;
+                        }
                     }
-                }
-            });
+                });
 
-            shopData.debtsCredits.forEach(dc => {
-                if (new Date(dc.paymentDate) >= startDate) {
-                    if (dc.type === 'debt') {
-                        debtSum += dc.amount;
-                    } else {
-                        creditSum += dc.amount;
+                shopData.debtsCredits.forEach(dc => {
+                    if (new Date(dc.paymentDate) >= startDate) {
+                        if (dc.type === 'debt') {
+                            debtSum += dc.amount;
+                        } else {
+                            creditSum += dc.amount;
+                        }
                     }
-                }
-            });
+                });
 
-            shopData.costs.forEach(c => {
-                if (new Date(c.date) >= startDate) {
-                    costSum += c.amount;
-                }
-            });
+                shopData.costs.forEach(c => {
+                    if (new Date(c.date) >= startDate) {
+                        costSum += c.amount;
+                    }
+                });
 
-            let profit = sellSum - buySum - costSum;
+                let profit = sellSum - buySum - costSum;
 
-            return `
-                <h3 class="mb-4">${type.charAt(0).toUpperCase() + type.slice(1)} Report</h3>
-                <div class="row">
-                    <div class="col-md-6">
-                        <h5>Transactions</h5>
-                        <p>Total Purchases: $${buySum.toFixed(2)}</p>
-                        <p>Total Sales: $${sellSum.toFixed(2)}</p>
+                return `
+                    <h3 class="mb-4">${type.charAt(0).toUpperCase() + type.slice(1)} Report</h3>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5>Transactions</h5>
+                            <p>Total Purchases: $${buySum.toFixed(2)}</p>
+                            <p>Total Sales: $${sellSum.toFixed(2)}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>Debts and Credits</h5>
+                            <p>Total Debts: $${debtSum.toFixed(2)}</p>
+                            <p>Total Credits: $${creditSum.toFixed(2)}</p>
+                        </div>
                     </div>
-                    <div class="col-md-6">
-                        <h5>Debts and Credits</h5>
-                        <p>Total Debts: $${debtSum.toFixed(2)}</p>
-                        <p>Total Credits: $${creditSum.toFixed(2)}</p>
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <h5>Costs</h5>
+                            <p>Total Costs: $${costSum.toFixed(2)}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>Profit</h5>
+                            <p>Total Profit: $${profit.toFixed(2)}</p>
+                        </div>
                     </div>
-                </div>
-                <div class="row mt-3">
-                    <div class="col-md-6">
-                        <h5>Costs</h5>
-                        <p>Total Costs: $${costSum.toFixed(2)}</p>
-                    </div>
-                    <div class="col-md-6">
-                        <h5>Profit</h5>
-                        <p>Total Profit: $${profit.toFixed(2)}</p>
-                    </div>
-                </div>
-            `;
-        }
+                `;
+            }
         });
     </script>
 </body>
